@@ -140,16 +140,6 @@ export class OrdersController {
 
 Remember `@Injectable()` in NestJS is by default a Singleton per each module. Ditto uses local resources like a persistence directory (which is `"./ditto"` by default). Multiple instances or processes cannot access the `"./ditto"` directory at the the same time; thus we have to make sure that _only one_ instance of `DittoModule` ever exists.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
 ## License
 
   Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
