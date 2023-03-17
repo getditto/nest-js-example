@@ -28,9 +28,21 @@
 
 ## Installation
 
+1. Install dependences
+
 ```bash
 $ npm install
 ```
+
+2. _Important!_
+
+Create a file called `.env` in the root and replace it with your online playground credentials 
+
+```
+DITTO_APP_ID=REPLACE_ME
+DITTO_ONLINE_PLAYGROUND_TOKEN=REPLACE_ME
+```
+
 
 ## Running the app
 
@@ -45,6 +57,13 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+Open the routes to see the sample Ditto data
+
+```
+http://localhost:3000/products
+http://localhost:3000/orders
+```
+
 ## Test
 
 ```bash
@@ -57,6 +76,81 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Best Practice for Setting Up Ditto
+
+1. Create a directory `src/ditto`
+2. Inside the directory create two files `ditto.module.ts` and `ditto.service.ts`
+3. Inside `ditto.service.ts` create the following:
+
+```ts
+@Injectable()
+export class DittoService {
+
+    public ditto: Ditto
+
+    onApplicationBootstrap() {
+        this.ditto = new Ditto({
+            // your configuration information
+            // see docs.ditto.live for more information
+        })
+        this.ditto.startSync()
+    }
+    
+    beforeApplicationShutDown() {
+        this.ditto.stopSync()
+    }
+}
+```
+
+4. In `ditto.module.ts` add the following code:
+
+```ts
+@Module({ 
+    providers: [DittoService],
+    exports: [DittoService]
+})
+export class DittoModule { }
+```
+
+It's extremely important to export the `DittoService` as well as stating that it should be a provider.
+
+5. Next in `app.module.ts` import the `DittoModule`:
+
+```ts
+@Module({
+  imports: [DittoModule, OrdersModule, ProductsModule], // import it here
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+6. In your other modules for example in `src/orders/order.module.ts` or in `src/products/products.module.ts` import `DittoModule` like so:
+
+```ts
+@Module({
+    controllers: [OrdersController],
+    imports: [DittoModule] // import `DittoModule`
+})
+export class OrdersModule {}
+```
+
+7. In your other controllers or services, you'll be able to inject the `DittoService` easily like so:
+
+```ts
+@Controller('orders')
+export class OrdersController {
+
+    private ditto: Ditto
+
+    constructor(dittoService: DittoService) {
+        this.ditto = dittoService.ditto
+    }
+
+```
+
+Remember `@Injectable()` in NestJS is by default a Singleton per each module. Ditto uses local resources like a persistence directory (which is `"./ditto"` by default). Multiple instances or processes cannot access the `"./ditto"` directory at the the same time; thus we have to make sure that _only one_ instance of `DittoModule` ever exists.
 
 ## Support
 
